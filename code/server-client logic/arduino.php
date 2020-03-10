@@ -4,7 +4,7 @@ $var1 = $_GET['uid'];
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "cart";
+$dbname = "store";
 
 // Create connection
 $conn = mysqli_connect($servername, $username, $password, $dbname);
@@ -13,8 +13,8 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-$sql = "INSERT INTO incoming (u_id, d_id)
-VALUES ($var1, '001')";
+$sql = "INSERT INTO incoming (rf_key, dev_id)
+VALUES ($var1, '1234567890')";
 
 //for debugging on browser
 if (mysqli_query($conn, $sql)) {
