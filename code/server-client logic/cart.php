@@ -37,17 +37,17 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-$sql = "SELECT p_name,company,price FROM product ";
+$sql = "SELECT barcode,p_name,price FROM cart ";
 $result = $conn->query($sql);
     echo "<table>
   <tr>
     <th>Item</th>
-    <th>Company</th>
+    <th>Description</th>
     <th>Price</th>
   </tr>";
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        echo "<tr><td>" . $row["p_name"]. "</td><td>" . $row["company"]. "</td><td> " . $row["price"]. "</td></tr>";
+        echo "<tr><td>" . $row["barcode"]. "</td><td>" . $row["p_name"]. "</td><td> " . $row["price"]. "</td></tr>";
     }
     echo "</table>";
 //  else {

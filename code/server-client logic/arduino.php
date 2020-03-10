@@ -26,14 +26,14 @@ if (mysqli_query($conn, $sql)) {
 mysqli_close($conn);
 
 //log file
-echo $var1;
+// echo $var1;
 
 file_put_contents('t.txt',$var1,FILE_APPEND);
 
 $var2=file_get_contents('t.txt');
 
-echo $var2;
-echo $var2;
+// echo $var2;
+// echo $var2;
 
 
 ?> 
