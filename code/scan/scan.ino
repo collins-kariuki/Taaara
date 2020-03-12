@@ -8,7 +8,10 @@
 //keypad
 #include <Keypad.h>
 
+//lcd
+#include <LiquidCrystal.h>
 
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12); //lcd(RS, E, D4, D5, D6, D7)pinout
 
  //RFID   declaration
 #define RST_PIN         5          //
@@ -46,6 +49,13 @@ WiFiEspClient client;
 
 //setup section.
 void setup() {
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  lcd.print("Collins heloo");
+
+
+
+
   // initialize serial for debugging
   Serial.begin(115200);
   // initialize serial for ESP module
