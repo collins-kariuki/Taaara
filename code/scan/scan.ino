@@ -80,43 +80,54 @@ void setup() {
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to WPA SSID: ");
     Serial.println(ssid);
+    lcd.clear();
+    lcd.print("Attempting to connect to WPA SSID: ");
+    lcd.setCursor(0,1);
+    lcd.println(ssid);
+    
     // Connect to WPA/WPA2 network
     status = WiFi.begin(ssid, pass);
   }
 
   Serial.println("You're connected to the network");
-  
+  lcd.clear();
+  lcd.print("You're connected");
   printWifiStatus();
 
 }
-
+// char key = keypad.waitForKey();
+// while(key!='A');
 void loop() {
 
-  char key = keypad.waitForKey();
-  if (key == 'A') {
-      Serial.println(F("Scan PICC to see UID..."));
 
-      // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-      if ( ! mfrc522.PICC_IsNewCardPresent()) {
-      }
-      // Select one of the cards
-      if ( ! mfrc522.PICC_ReadCardSerial()) {
-      }
-      
-      scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
+  	// Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+	if ( ! mfrc522.PICC_IsNewCardPresent()) {
+		return;
+	}
 
-      Serial.println(scanedProd_Uid.length());
+	// Select one of the cards
+	if ( ! mfrc522.PICC_ReadCardSerial()) {
+		return;
+	}
+  scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
 
-      //--------------------------------------------------------------------------------//
+  Serial.println(scanedProd_Uid.length());
+	// Dump debug info about the card; PICC_HaltA() is automatically called
+	//mfrc522.PICC_DumpToSerial(&(mfrc522.uid));
+      // Serial.println(F("Scan PICC to see UID..."));
+      // scanGood();
+
+  //--------------------------------------------------------------------------------//
   // if there's incoming data from the net connection send it out the serial port
   // this is for debugging purposes only
   while (client.available()) {
     char c = client.read();
+    //Serial.println(c);
     Serial.write(c);
-  }
-    httpRequest();
 
-  };    
+  }
+  delay(1000);
+    httpRequest();
 }
 
 
@@ -139,6 +150,15 @@ void httpRequest()
     client.println("Host: 192.168.1.100");
     client.println("Connection: close");
     client.println();
+
+     Serial.println("sent...");
+
+     //delay(5000);
+
+    while (client.available()) {
+    char c = client.read();
+    Serial.write(c);
+  }
 
     // note the time that the connection was made
     //lastConnectionTime = millis();
@@ -167,3 +187,23 @@ void printWifiStatus()
   Serial.print(rssi);
   Serial.println(" dBm");
 }
+
+ void scanGood(){
+        {
+      // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+      if ( ! mfrc522.PICC_IsNewCardPresent()) {
+        return;
+      }
+      // Select one of the cards
+      if ( ! mfrc522.PICC_ReadCardSerial()) {
+        return;
+      }
+      
+      scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
+
+      Serial.println(scanedProd_Uid.length());
+      }
+
+ }
+
+  
