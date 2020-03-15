@@ -95,12 +95,29 @@ void setup() {
   printWifiStatus();
 
 }
-// char key = keypad.waitForKey();
-// while(key!='A');
+
 void loop() {
+  lcd.clear();
+  lcd.setCursor(5,0);
+  lcd.print("Welcome");
+  lcd.setCursor(0,1);
+  lcd.print("Press A to shop");
+
+  Serial.println("Press A to start shopping");
+
+  char key = keypad.waitForKey();
+  while(key == 'A'){
+  lcd.clear();
+  lcd.print("Scan a Product");
+  Serial.println("Scan a Product");
+  scanGoods();
+  
+  };
 
 
-  	// Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+
+
+  /*	// Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
 	if ( ! mfrc522.PICC_IsNewCardPresent()) {
 		return;
 	}
@@ -126,14 +143,16 @@ void loop() {
     Serial.write(c);
 
   }
-  delay(1000);
-    httpRequest();
+    delay(1000);
+    httpRequest();*/
 }
 
 
 void httpRequest()
 {
   Serial.println();
+
+  String dump;
     
   // close any connection before send a new request
   // this will free the socket on the WiFi shield
@@ -151,20 +170,48 @@ void httpRequest()
     client.println("Connection: close");
     client.println();
 
-     Serial.println("sent...");
+    Serial.println("sent...");
 
-     //delay(5000);
+  //record incoming bytes
 
     while (client.available()) {
     char c = client.read();
     Serial.write(c);
-  }
+    dump+=c;
+    }
 
-    // note the time that the connection was made
-    //lastConnectionTime = millis();
+    Serial.println("Dump coming");
+
+    Serial.println(dump.length());
+    Serial.println(dump);
+    lcd.clear();
+
+    // send response to customer
+    if(dump.length()==248){
+      lcd.clear();
+      lcd.println("Product Added..");
+      delay(2000);
+      lcd.clear();
+      lcd.print("Scan a Product");
+    }else if(dump.length()==347){
+      lcd.clear();
+      lcd.println("Already Scanned.");
+      delay(2000);
+      lcd.clear();
+      lcd.print("Scan a Product");   
+    }else {
+      lcd.clear();
+      lcd.println("Error 1.....");
+      delay(2000);
+      lcd.clear();
+      lcd.print("Scan a Product");          
+    }
+
   }
   else {
     // if you couldn't make a connection
+    lcd.clear();
+    lcd.print("Connection failed");
     Serial.println("Connection failed");
   }
 }
@@ -188,21 +235,34 @@ void printWifiStatus()
   Serial.println(" dBm");
 }
 
- void scanGood(){
-        {
-      // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-      if ( ! mfrc522.PICC_IsNewCardPresent()) {
-        return;
-      }
-      // Select one of the cards
-      if ( ! mfrc522.PICC_ReadCardSerial()) {
-        return;
-      }
-      
-      scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
+ int scanGood(){
+    // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+    if ( ! mfrc522.PICC_IsNewCardPresent()) {
+      return 0;
+    }
+    // Select one of the cards
+    if ( ! mfrc522.PICC_ReadCardSerial()) {
+      return 0;
+    }
+    
+    scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
+    Serial.println(scanedProd_Uid.length());
 
-      Serial.println(scanedProd_Uid.length());
-      }
+    lcd.clear();
+    lcd.setCursor(5,0);
+    lcd.print("Scanned");
+
+    delay(1000);
+    httpRequest();
+    
+
+ }
+
+
+ void scanGoods(){
+   while(scanGood() == 0){
+   scanGood();
+   }
 
  }
 
