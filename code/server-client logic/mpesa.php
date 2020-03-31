@@ -1,4 +1,8 @@
 <?php
+ $number = $_GET['number'];
+
+
+
   $url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
   
   $curl = curl_init();
@@ -9,7 +13,7 @@
   $BusinessShortCode = '174379';
   $Timestamp = date('YmdHis',time());
   $Amount = '5';
-  $PhoneNumber = '254795580723';
+  $PhoneNumber = $number;
   $PartyA = $PhoneNumber;
   $PartyB =  '600000';
   $AccountReference = 'test';

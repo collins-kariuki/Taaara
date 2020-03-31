@@ -19,6 +19,7 @@ LiquidCrystal lcd(7, 8, 9, 10, 11, 12); //lcd(RS, E, D4, D5, D6, D7)pinout
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 String scanedProd_Uid;
+String number;//PhoneNumber
 
 
  //keypad declaration
@@ -47,13 +48,12 @@ char server[] = "192.168.1.100";
 // Initialize the wifi client object
 WiFiEspClient client;
 
-//setup section.
+/////setup section.//////
+
 void setup() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   lcd.print("Collins heloo");
-
-
 
 
   // initialize serial for debugging
@@ -62,6 +62,8 @@ void setup() {
   Serial1.begin(115200);
   // initialize ESP module
   WiFi.init(&Serial1);
+
+
  //RFID
   SPI.begin();      // Init SPI bus
   mfrc522.PCD_Init();   // Init MFRC522
@@ -69,7 +71,7 @@ void setup() {
   mfrc522.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
   // Serial.println(F("Scan PICC to see UID..."));
 
-   // check for the presence of the shield
+   // check for the presence of the esp wifi shield
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
     // don't continue
@@ -94,6 +96,8 @@ void setup() {
   lcd.print("You're connected");
   printWifiStatus();
 
+
+
 }
 
 void loop() {
@@ -107,11 +111,12 @@ void loop() {
 
   char key = keypad.waitForKey();
   while(key == 'A'){
-  lcd.clear();
-  lcd.print("Scan a Product");
-  Serial.println("Scan a Product");
-  scanGoods();
-  
+
+    lcd.clear();
+    lcd.print("Scan a Product");
+    Serial.println("Scan a Product");
+    scanGoods();
+    
   };
 
 
@@ -148,11 +153,11 @@ void loop() {
 }
 
 
-void httpRequest()
-{
+void httpRequest(){
+
   Serial.println();
 
-  String dump;
+  String dump;//stores response from the server
     
   // close any connection before send a new request
   // this will free the socket on the WiFi shield
@@ -172,12 +177,12 @@ void httpRequest()
 
     Serial.println("sent...");
 
-  //record incoming bytes
+   //record incoming bytes
 
     while (client.available()) {
-    char c = client.read();
-    Serial.write(c);
-    dump+=c;
+      char c = client.read();
+      Serial.write(c);
+      dump+=c;
     }
 
     Serial.println("Dump coming");
@@ -193,12 +198,14 @@ void httpRequest()
       delay(2000);
       lcd.clear();
       lcd.print("Scan a Product");
+
     }else if(dump.length()==347){
       lcd.clear();
       lcd.println("Already Scanned.");
       delay(2000);
       lcd.clear();
-      lcd.print("Scan a Product");   
+      lcd.print("Scan a Product"); 
+
     }else {
       lcd.clear();
       lcd.println("Error 1.....");
@@ -217,8 +224,7 @@ void httpRequest()
 }
 
 
-void printWifiStatus()
-{
+void printWifiStatus(){
   // print the SSID of the network you're attached to
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
@@ -235,35 +241,131 @@ void printWifiStatus()
   Serial.println(" dBm");
 }
 
- int scanGood(){
-    // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-    if ( ! mfrc522.PICC_IsNewCardPresent()) {
-      return 0;
-    }
-    // Select one of the cards
-    if ( ! mfrc522.PICC_ReadCardSerial()) {
-      return 0;
-    }
-    
-    scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
-    Serial.println(scanedProd_Uid.length());
-
-    lcd.clear();
-    lcd.setCursor(5,0);
-    lcd.print("Scanned");
-
-    delay(1000);
-    httpRequest();
-    
-
- }
-
-
- void scanGoods(){
-   while(scanGood() == 0){
-   scanGood();
-   }
-
- }
-
+int scanGood(){
+  // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return 0;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    return 0;
+  }
   
+  scanedProd_Uid = mfrc522.Picc_returnUid(&(mfrc522.uid));
+  Serial.println(scanedProd_Uid.length());
+
+  lcd.clear();
+  lcd.setCursor(5,0);
+  lcd.print("Scanned");
+
+  delay(1000);
+  httpRequest();
+  
+}
+
+
+void scanGoods(){
+  while(scanGood() == 0){
+    char key1 = keypad.getKey();
+    //b pressed call payment function
+    if(key1 == 'B'){
+      lcd.clear();
+      lcd.print("M-pesa");
+      delay(1000);
+      mpesa();
+      
+    }else
+    {
+      scanGood();
+    }
+
+  }
+
+}
+
+void mpesa(){
+  number == getphonenumber();
+  httpRequest_mpesa();
+
+
+}
+
+String getphonenumber(){
+  String PhoneNumber;
+
+  lcd.clear();
+  lcd.printf("Enter M-Pesa number");
+  
+  for(int i=0; i<12; i++){
+    char key2 = keypad.getKey();
+    PhoneNumber += key2;
+    lcd.setCursor(i,1);
+    lcd.print(key2);
+  }
+  void error_check(){}
+  // Serial.println(PhoneNumber);
+  lcd.clear();
+  lcd.printf("You entered");
+  lcd.setCursor(0,1);
+  lcd.print(PhoneNumber);
+  delay(2000);
+  lcd.setCursor(0,0);
+  lcd.print("Press C to confirm D to repeat");//need to scroll text
+
+  char key3 = keypad.waitForKey();
+  if(key3 == 'C'){
+    lcd.clear();
+    lcd.printf("Confirmed");
+    return PhoneNumber;
+  }else if (key3 == 'D')
+  {
+    getphonenumber();
+  }else
+  {
+    error_check();
+  
+  }
+    
+ 
+}
+
+
+void httpRequest_mpesa()
+{
+  lcd.clear();
+  lcd.printf("Processing...");
+  String dump2;//stores response from the server
+    
+  // close any connection before send a new request
+  client.stop();
+
+  // if there's a successful connection
+  if (client.connect(server, 80)) {
+    Serial.println("Connecting...");
+    
+    // send the HTTP PUT request
+    client.print("GET /mpesa.php?number=");
+    client.print(number);
+    client.println(" HTTP/1.1");
+    client.println("Host: 192.168.1.100");
+    client.println("Connection: close");
+    client.println();
+    
+   //record incoming bytes
+
+    while (client.available()) {
+      char c = client.read();
+      Serial.write(c);
+      dump2+=c;
+    }
+
+    Serial.println("Dump coming");
+
+    Serial.println(dump2.length());
+    Serial.println(dump2);
+  }
+  else {
+    // if you couldn't make a connection
+    Serial.println("Connection failed");
+  }
+}
