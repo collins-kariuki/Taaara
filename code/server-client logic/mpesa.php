@@ -9,7 +9,7 @@ $sql = "SELECT SUM(price) FROM cart";
   $url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
   $curl = curl_init();
   curl_setopt($curl, CURLOPT_URL, $url);
-  curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization:Bearer 52WZRZ02D0HatdGR0h6KZ5otaAxb')); //setting custom header
+  curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization:Bearer auth')); //setting custom header
 //amount
 $result = mysqli_query($conn,$sql);
 $resultarr = mysqli_fetch_assoc($result);
@@ -23,7 +23,7 @@ $PartyA = $PhoneNumber;
 $PartyB = '174379';
 $AccountReference = 'test';
 $TransactionDesc = 'test';
-$Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
+$Passkey ='passkey';
 $data = $BusinessShortCode.$Passkey.$Timestamp;
 $password = base64_encode($data);
 
