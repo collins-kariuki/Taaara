@@ -1,39 +1,48 @@
 <?php
- $number = $_GET['number'];
-
+include "connection.php";
+$number = $_GET['number'];
+$dev_id = '1234567890';
+$session_id = '100000007';
+$sql = "SELECT SUM(price) FROM cart";
 
 
   $url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-  
   $curl = curl_init();
   curl_setopt($curl, CURLOPT_URL, $url);
-  curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization:Bearer ACCESS_TOKEN')); //setting custom header
-
+  curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization:Bearer 52WZRZ02D0HatdGR0h6KZ5otaAxb')); //setting custom header
+//amount
+$result = mysqli_query($conn,$sql);
+$resultarr = mysqli_fetch_assoc($result);
+$Amount = $resultarr["SUM(price)"];
   
-  $BusinessShortCode = '174379';
-  $Timestamp = date('YmdHis',time());
-  $Amount = '5';
-  $PhoneNumber = $number;
-  $PartyA = $PhoneNumber;
-  $PartyB =  '600000';
-  $AccountReference = 'test';
-  $TransactionDesc = 'test';
+  
+$BusinessShortCode = '174379';
+$Timestamp = date('YmdHis',time());
+$PhoneNumber = $number;
+$PartyA = $PhoneNumber;
+$PartyB = '174379';
+$AccountReference = 'test';
+$TransactionDesc = 'test';
+$Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
+$data = $BusinessShortCode.$Passkey.$Timestamp;
+$password = base64_encode($data);
 
-  $Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
-  $data = $BusinessShortCode.$Passkey.$Timestamp;
-  $password = base64_encode($data);
-
+//callback url
+$CallBackURLraw = 'http://da03b9381f84.ngrok.io/mpesaCallbackParser.php';
+$CallBackURL = $CallBackURLraw.'?dev_id='.$dev_id.'&session_id='.$session_id;
+//$CallBackURL = 'https://97766fd3.ngrok.io/mpesaCallbackParser.php?dev_id=1234567890&session_id=100000007';
+  
   $curl_post_data = array(
     //Fill in the request parameters with valid values
     'BusinessShortCode' => $BusinessShortCode,
     'Password' => $password,
     'Timestamp' => $Timestamp,
     'TransactionType' => 'CustomerPayBillOnline',
-    'Amount"' => $Amount,
+    'Amount' => $Amount,
     'PartyA' => $PartyA,
     'PartyB' => $PartyB,
     'PhoneNumber' => $PhoneNumber,
-    'CallBackURL' => 'https://ip_address:port/callback',
+    'CallBackURL' => $CallBackURL,
     'AccountReference' => $AccountReference,
     'TransactionDesc' => $TransactionDesc
   );
@@ -48,5 +57,6 @@
   print_r($curl_response);
   
   echo $curl_response;
+
   ?>
   

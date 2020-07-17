@@ -1,20 +1,13 @@
 <?php
+include "connection.php";
 
-$var1 = $_GET['uid'];
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "store";
+$uid = $_GET['uid'];
+$dev_id = '1234567890';
+$session_id = '100000007';
 
-// Create connection
-$conn = mysqli_connect($servername, $username, $password, $dbname);
-// Check connection
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
 
-$sql = "INSERT INTO incoming (rf_key, dev_id)
-VALUES ($var1, '1234567890')";
+$sql = "INSERT INTO incoming (rf_key, dev_id, session_id)
+VALUES ($uid, $dev_id, $session_id)";
 
 //for debugging on browser
 if (mysqli_query($conn, $sql)) {
@@ -26,9 +19,9 @@ if (mysqli_query($conn, $sql)) {
 mysqli_close($conn);
 
 //log file
-// echo $var1;
+// echo $uid;
 
-file_put_contents('t.txt',$var1,FILE_APPEND);
+file_put_contents('t.txt',$uid,FILE_APPEND);
 
 $var2=file_get_contents('t.txt');
 

@@ -14,8 +14,8 @@
 LiquidCrystal lcd(7, 8, 9, 10, 11, 12); //lcd(RS, E, D4, D5, D6, D7)pinout
 
  //RFID   declaration
-#define RST_PIN         5          //
-#define SS_PIN          53         //
+#define RST_PIN         5       
+#define SS_PIN          53         
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 String scanedProd_Uid;
@@ -23,8 +23,8 @@ String number;//PhoneNumber
 
 
  //keypad declaration
-const byte ROWS = 4; //four row
-const byte COLS = 4; //three columns
+const byte ROWS = 4;
+const byte COLS = 4; 
 char keys[ROWS][COLS] = {
     {'1','2','3','A'},
     {'4','5','6','B'},
@@ -32,18 +32,18 @@ char keys[ROWS][COLS] = {
     {'*','0','#','D'}
 };
 
-byte rowPins[ROWS] = {40, 41, 42, 43}; //connect to the row pinouts of the keypad
-byte colPins[COLS] = {44, 45, 46, 47}; //connect to the column pinouts of the keypad
+byte rowPins[ROWS] = {40, 41, 42, 43};
+byte colPins[COLS] = {44, 45, 46, 47}; 
 
-Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );  // Create keypad instance
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );  // keypad instance
 
 //wifi connection.
-char ssid[] = "E5830-cbfa";            // your network SSID (name)
-char pass[] = "30833861";           // your network password
-int status = WL_IDLE_STATUS;     // the Wifi radio's status
+char ssid[] = "col";            
+char pass[] = "collins...";           
+int status = WL_IDLE_STATUS;   
 
 //server connection
-char server[] = "192.168.1.100";
+char server[] = "192.168.43.177";
 
 // Initialize the wifi client object
 WiFiEspClient client;
@@ -53,7 +53,12 @@ WiFiEspClient client;
 void setup() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
-  lcd.print("Collins heloo");
+  lcd.setCursor(3,0);
+  lcd.print("Welcome To");
+  lcd.setCursor(4,1);
+  lcd.print(" Taara ");
+  delay(5000);
+  
 
 
   // initialize serial for debugging
@@ -171,7 +176,7 @@ void httpRequest(){
     client.print("GET /arduino.php?uid=");
     client.print(scanedProd_Uid);
     client.println(" HTTP/1.1");
-    client.println("Host: 192.168.1.100");
+    client.println("Host: 192.168.43.177");
     client.println("Connection: close");
     client.println();
 
@@ -284,45 +289,41 @@ void scanGoods(){
 }
 
 void mpesa(){
-  number == getphonenumber();
+  number = getphonenumber();
   httpRequest_mpesa();
 
 
 }
 
 String getphonenumber(){
-  String PhoneNumber;
+  String PhoneNumber="";
 
   lcd.clear();
-  lcd.printf("Enter M-Pesa number");
+  lcd.print("Enter M-Pesa number");
   
   for(int i=0; i<12; i++){
-    char key2 = keypad.getKey();
+    char key2 = keypad.waitForKey();
     PhoneNumber += key2;
     lcd.setCursor(i,1);
     lcd.print(key2);
   }
-  void error_check(){}
   // Serial.println(PhoneNumber);
   lcd.clear();
-  lcd.printf("You entered");
+  lcd.print("You entered");
   lcd.setCursor(0,1);
   lcd.print(PhoneNumber);
   delay(2000);
-  lcd.setCursor(0,0);
-  lcd.print("Press C to confirm D to repeat");//need to scroll text
+  lcd.clear();
+  lcd.print("Press C to confirm any other key to repeat");//need to scroll text
 
   char key3 = keypad.waitForKey();
   if(key3 == 'C'){
     lcd.clear();
-    lcd.printf("Confirmed");
+    lcd.print("Confirmed");
     return PhoneNumber;
-  }else if (key3 == 'D')
-  {
-    getphonenumber();
   }else
   {
-    error_check();
+    getphonenumber();
   
   }
     
@@ -333,9 +334,9 @@ String getphonenumber(){
 void httpRequest_mpesa()
 {
   lcd.clear();
-  lcd.printf("Processing...");
+  lcd.print("Processing...");
   String dump2;//stores response from the server
-    
+  //char server[] = "http://97766fd3.ngrok.io";
   // close any connection before send a new request
   client.stop();
 
@@ -347,7 +348,7 @@ void httpRequest_mpesa()
     client.print("GET /mpesa.php?number=");
     client.print(number);
     client.println(" HTTP/1.1");
-    client.println("Host: 192.168.1.100");
+    client.println("Host: 192.168.43.177");
     client.println("Connection: close");
     client.println();
     
@@ -363,9 +364,23 @@ void httpRequest_mpesa()
 
     Serial.println(dump2.length());
     Serial.println(dump2);
+
+
+    lcd.clear();
+    lcd.setCursor(1,0);
+    lcd.print("Thank You for");
+    lcd.setCursor(0,1);
+    lcd.print("shopping with us");
+    delay(2000);
+    // setup();
   }
+
+
   else {
     // if you couldn't make a connection
     Serial.println("Connection failed");
+    lcd.clear();
+    lcd.print("Trans Failed");
+
   }
 }
