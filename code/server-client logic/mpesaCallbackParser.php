@@ -60,15 +60,16 @@ echo($sms);
 require __DIR__ . '/vendor/autoload.php';
 use Twilio\Rest\Client;
 
-$account_sid = 'AC17fa4cbfda79b74fec3ba7e47d006241';
-$auth_token = 'e02b422e465a783bd7d65b80acb68302';
+$account_sid = 'key';
+$auth_token = 'key';
+ //Add enviromental variables in production
 
-$twilio_number = "+19283795393";
+$twilio_number = "twillio num";
 
 $client = new Client($account_sid, $auth_token);
 $client->messages->create(
     // Where to send a text message (your cell phone?)
-    '+254795390809',
+    'nuber',
     array(
         'from' => $twilio_number,
         'body' => $sms
